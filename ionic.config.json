@@ -1,0 +1,7 @@
+{
+  "name": "sequeness-01",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
