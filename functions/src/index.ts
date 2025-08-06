@@ -1,5 +1,5 @@
 import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
+import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 
 import axios from "axios";
@@ -18,21 +18,45 @@ setGlobalOptions({maxInstances: 10});
 
 export const stripe01 = onRequest(async (req, res) => {
 	const plan = req.query.plan;
+	console.log(plan);
 
-	if (!plan) return res.send("Subscription plan not found");
+	if (!plan) {
+		res.send("Subscription plan not found");
+		return;
+	}
 
 	let priceId;
 
-	switch (plan.toLowerCase()) {
-		case "Quotes in a jar x3":
+	switch (plan) {
+		case "Quotes in a jar x3": {
 			priceId = "prod_SoUSRWjqzZNL4T";
-			break
+			break;
+		}
+		case "Quotes in a jar x6": {
+			priceId: "prod_SoUUKK4MyUyKeg";
+			break;
+		}
+		case "Quotes in a jar x12": {
+			priceId: "prod_SoUV5XkLbsdO3J";
+			break;
+		}
+		default: {
+			res.send("Subscription plan not found");
+			return;
+		}
 	}
 
 	const session = await stripe00.checkout.sessions.create({
 		mode: "subscription", 
-		line_items: []
+		line_items: [
+			{price: priceId, quantity: 1},
+		],
+		success_url: "http://localhost:5001/success?session_id={CHECKOUT_SESSION_ID}",
+		cancel_url: "http://localhost:5001/cancel",
 	});
+	console.log(session);
+	res.redirect(303, session.url as string);
+	return;
 });
 
 export const helloWorld = onRequest((request, response) => {
