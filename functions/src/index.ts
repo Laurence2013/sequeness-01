@@ -4,41 +4,40 @@ import * as logger from "firebase-functions/logger";
 
 import axios from "axios";
 
-
 import Stripe from "stripe";
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
-
-if (!stripeSecretKey) {
-	throw new Error("Stripe secret key is not set in environment variables");
-}
-
-const stripe00 = new Stripe(stripeSecretKey, {apiVersion: "2025-07-30.basil"});
+let stripe: Stripe;
 
 setGlobalOptions({maxInstances: 10});
 
 export const stripe01 = onRequest(async (req, res) => {
+	if (!stripe) {
+		const stripe00 = process.env.STRIPE_SECRET_KEY;
+		if (!stripe00) {
+			console.log("Stripe secret key is not set!");
+			res.status(500).send("Configuration error.");
+			return;
+		}
+		stripe = new Stripe(stripe00, {apiVersion: "2025-07-30.basil"});
+	}
 	const plan = req.query.plan;
-	console.log(plan);
-
 	if (!plan) {
 		res.send("Subscription plan not found");
 		return;
 	}
-
 	let priceId;
 
 	switch (plan) {
-		case "Quotes in a jar x3": {
-			priceId = "prod_SoUSRWjqzZNL4T";
+		case "quotes-in-a-jar-x3": {
+			priceId = "price_1RsrTW38jIjKMA7GCTuBr5nc";
 			break;
 		}
-		case "Quotes in a jar x6": {
-			priceId: "prod_SoUUKK4MyUyKeg";
+		case "quotes-in-a-jar-x6": {
+			priceId = "price_1RsrVt38jIjKMA7Gnyj5dXeI";
 			break;
 		}
-		case "Quotes in a jar x12": {
-			priceId: "prod_SoUV5XkLbsdO3J";
+		case "quotes-in-a-jar-x12": {
+			priceId = "price_1RsrWS38jIjKMA7GhdTyO2Ce";
 			break;
 		}
 		default: {
@@ -46,18 +45,21 @@ export const stripe01 = onRequest(async (req, res) => {
 			return;
 		}
 	}
-
-	const session = await stripe00.checkout.sessions.create({
-		mode: "subscription", 
-		line_items: [
-			{price: priceId, quantity: 1},
-		],
-		success_url: "http://localhost:5001/success?session_id={CHECKOUT_SESSION_ID}",
-		cancel_url: "http://localhost:5001/cancel",
-	});
-	console.log(session);
-	res.redirect(303, session.url as string);
-	return;
+	try {
+		const session = await stripe.checkout.sessions.create({
+			mode: "subscription", 
+			line_items: [
+				{price: priceId, quantity: 1},
+			],
+			success_url: "http://localhost:5001/success?session_id={CHECKOUT_SESSION_ID}",
+			cancel_url: "http://localhost:5001/cancel",
+		});
+		res.send(session);
+		// res.redirect(303, session.url as string);
+		return;
+	} catch (err) {
+		console.log(err);
+	}
 });
 
 export const helloWorld = onRequest((request, response) => {

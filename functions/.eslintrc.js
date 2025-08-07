@@ -26,6 +26,8 @@ module.exports = {
 		"import",
 	],
 	rules: {
+		"semi": ["off"],
+		"no-unused-vars": "error",
 		"quotes": ["error", "double"],
 		"import/no-unresolved": 0,
 		"no-trailing-spaces": "off",
