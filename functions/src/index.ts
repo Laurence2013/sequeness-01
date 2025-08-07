@@ -29,15 +29,18 @@ export const stripe01 = onRequest(async (req, res) => {
 
 	switch (plan) {
 		case "quotes-in-a-jar-x3": {
-			priceId = "price_1RsrTW38jIjKMA7GCTuBr5nc";
+			const priceId00: string = process.env.QUOTES_IN_A_JAR_X3 as string;
+			priceId = priceId00;
 			break;
 		}
 		case "quotes-in-a-jar-x6": {
-			priceId = "price_1RsrVt38jIjKMA7Gnyj5dXeI";
+			const priceId00: string = process.env.QUOTES_IN_A_JAR_X6 as string;
+			priceId = priceId00;
 			break;
 		}
 		case "quotes-in-a-jar-x12": {
-			priceId = "price_1RsrWS38jIjKMA7GhdTyO2Ce";
+			const priceId00: string = process.env.QUOTES_IN_A_JAR_X12 as string;
+			priceId = priceId00;
 			break;
 		}
 		default: {
