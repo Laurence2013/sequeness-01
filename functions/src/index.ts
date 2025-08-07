@@ -51,9 +51,7 @@ export const stripe01 = onRequest(async (req, res) => {
 	try {
 		const session = await stripe.checkout.sessions.create({
 			mode: "subscription", 
-			line_items: [
-				{price: priceId, quantity: 1},
-			],
+			line_items: [{price: priceId, quantity: 1}],
 			success_url: "http://localhost:5001/success?session_id={CHECKOUT_SESSION_ID}",
 			cancel_url: "http://localhost:5001/cancel",
 		});
