@@ -62,11 +62,6 @@ export const stripe01 = onRequest(async (req, res) => {
 		console.log(err);
 	}
 });
-
-export const helloWorld = onRequest((request, response) => {
-	logger.info("Hello logs!", {structuredData: true});
-	response.send("Hello from Firebase!");
-});
 export const api = onRequest(async (request, response) => {
 	logger.info("myHttpRequestFunction received a request!");
 
