@@ -2,15 +2,17 @@ import {setGlobalOptions} from "firebase-functions";
 import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 
-import axios from "axios";
-
 import Stripe from "stripe";
+
+import {apiTest} from "./api_test";
 
 let stripe: Stripe;
 
 setGlobalOptions({maxInstances: 10});
 
-export const stripe01 = onRequest(async (req, res) => {
+export const subscriptionPlan = onRequest(async (req, res) => {
+	logger.info("This is the API's Subscription Plan");
+
 	if (!stripe) {
 		const stripe00 = process.env.STRIPE_SECRET_KEY;
 		if (!stripe00) {
@@ -54,6 +56,7 @@ export const stripe01 = onRequest(async (req, res) => {
 			line_items: [{price: priceId, quantity: 1}],
 			success_url: "http://localhost:5001/success?session_id={CHECKOUT_SESSION_ID}",
 			cancel_url: "http://localhost:5001/cancel",
+			shipping_address_collection: {"allowed_countries": ["GB"]},
 		});
 		res.send(session);
 		// res.redirect(303, session.url as string);
@@ -62,26 +65,4 @@ export const stripe01 = onRequest(async (req, res) => {
 		console.log(err);
 	}
 });
-export const api = onRequest(async (request, response) => {
-	logger.info("myHttpRequestFunction received a request!");
-
-	switch (request.method) {
-		case "GET": {
-			const response00 = await axios.get("https://jsonplaceholder.typicode.com/users/1");
-			response.send(response00.data);
-			break;
-		}
-		case "POST": {
-			const body = request.body;
-			response.send(body);
-			break;
-		}
-		case "DELETE": {
-			response.send("It was DELETE request");
-			break;
-		}
-		default: {
-			response.send("It was a default request...");
-		}
-	}
-});
+export {apiTest};
